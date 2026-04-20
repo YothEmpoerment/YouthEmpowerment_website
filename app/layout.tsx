@@ -10,16 +10,6 @@ if (typeof globalThis !== "undefined" && !globalThis.localStorage?.getItem) {
     key: () => null,
   };
 }
-<head>
-  <meta name="google-site-verification" content="Y_YxzlRxtPNvDMaaHBIHney3yE6dO_6z3GmC_WQLLJg" />
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  ...
-</head>
-verification: {
-  google: "Y_YxzlRxtPNvDMaaHBIHney3yE6dO_6z3GmC_WQLLJg",
-},
-<meta name="google-site-verification" content="Y_YxzlRxtPNvDMaaHBIHney3yE6dO_6z3GmC_WQLLJg" />
 
 import type { Metadata } from "next";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -43,6 +33,10 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://youthempowerment.community",
   },
+  // ✅ ADD THIS — Next.js renders it as <meta name="google-site-verification" ...>
+  verification: {
+    google: "Y_YxzlRxtPNvDMaaHBIHney3yE6dO_6z3GmC_WQLLJg",
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -62,6 +56,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
+        {/* ✅ Manual meta tag as backup — keeps both methods active */}
+        <meta name="google-site-verification" content="Y_YxzlRxtPNvDMaaHBIHney3yE6dO_6z3GmC_WQLLJg" />
+
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
