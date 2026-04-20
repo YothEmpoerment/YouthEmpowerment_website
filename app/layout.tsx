@@ -10,6 +10,9 @@ if (typeof globalThis !== "undefined" && !globalThis.localStorage?.getItem) {
     key: () => null,
   };
 }
+verification: {
+  google: "Y_YxzlRxtPNvDMaaHBIHney3yE6dO_6z3GmC_WQLLJg",
+},
 <meta name="google-site-verification" content="Y_YxzlRxtPNvDMaaHBIHney3yE6dO_6z3GmC_WQLLJg" />
 
 import type { Metadata } from "next";
