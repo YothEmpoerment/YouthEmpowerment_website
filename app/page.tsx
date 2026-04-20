@@ -3,7 +3,7 @@ import HeroSection from "@/components/sections/HeroSection";
 import ImpactSection from "@/components/sections/ImpactSection";
 import WhatWeDoPreview from "@/components/sections/WhatWeDoPreview";
 import HomeCtaSection from "@/components/sections/HomeCtaSection";
-
+<meta name="google-site-verification" content="Y_YxzlRxtPNvDMaaHBIHney3yE6dO_6z3GmC_WQLLJg" />
 export const metadata: Metadata = {
   title: "Home",
   description:
