@@ -10,6 +10,14 @@ if (typeof globalThis !== "undefined" && !globalThis.localStorage?.getItem) {
     key: () => null,
   };
 }
+<head>
+  {/* Google Search Console Verification */}
+  <meta name="google-site-verification" content="Y_YxzlRxtPNvDMaaHBIHney3yE6dO_6z3GmC_WQLLJg" />
+
+  {/* rest of your existing head tags... */}
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  ...
+</head>
 verification: {
   google: "Y_YxzlRxtPNvDMaaHBIHney3yE6dO_6z3GmC_WQLLJg",
 },
