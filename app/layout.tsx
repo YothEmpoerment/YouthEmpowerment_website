@@ -33,7 +33,6 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://youthempowerment.community",
   },
-  // ✅ ADD THIS — Next.js renders it as <meta name="google-site-verification" ...>
   verification: {
     google: "Y_YxzlRxtPNvDMaaHBIHney3yE6dO_6z3GmC_WQLLJg",
   },
@@ -44,11 +43,20 @@ export const metadata: Metadata = {
     siteName: "Youth Empowerment",
     title: "Youth Empowerment | Empowering the Next Generation of Innovators",
     description: "Youth Empowerment connects students, mentors, and industry professionals to learn, grow, and build impactful careers in technology.",
+    images: [
+      {
+        url: "/android-chrome-512x512.png",
+        width: 512,
+        height: 512,
+        alt: "Youth Empowerment Community",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Youth Empowerment | Empowering the Next Generation of Innovators",
     description: "Youth Empowerment connects students, mentors, and industry professionals to learn, grow, and build impactful careers in technology.",
+    images: ["/android-chrome-512x512.png"],
   },
 };
 
@@ -56,9 +64,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
-        {/* ✅ Manual meta tag as backup — keeps both methods active */}
+        {/* Google Verification */}
         <meta name="google-site-verification" content="Y_YxzlRxtPNvDMaaHBIHney3yE6dO_6z3GmC_WQLLJg" />
 
+        {/* ✅ Favicon — browser tab logo */}
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
+        <link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/site.webmanifest" />
+
+        {/* Google Fonts */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
