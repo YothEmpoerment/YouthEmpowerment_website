@@ -1,0 +1,54 @@
+{
+  "students": [
+    {
+      "id": 1,
+      "name": "Tayyaba Shakoor",
+      "role": "BS Software Engineering Student, KPK",
+      "text": "Happy to share that I have completed a 3-Day Web Development Boot Camp with Youth Empowerment. I improved my HTML5, CSS3, Boostarp 5, created a portfolio website, and shared my work on GitHub. Thanks to Sir Muhammad Sufyan Jura and his team! Looking forward to improving my frontend skills.",
+      "rating": 5,
+      "image": "/tayyaba.jpg"
+    },
+    {
+      "id": 2,
+      "name": "Abeera Tanveer",
+      "role": "BSCS Student, Sindh",
+      "text": "I am pleased to share that I have successfully completed the 3-Day Web Development Boot Camp organized by Youth Empowerment. It was a valuable learning experience that strengthened my understanding of web development fundamentals. Grateful  for the opportunity. Looking forward to applying these skills and continuing my learning journey.",
+      "rating": 5,
+      "image": "/abeera.jpg"
+    },
+    {
+      "id": 3,
+      "name": "Abeera Tanveer",
+      "role": "BSCS Student, Sindh",
+      "text": "Just wrapped up an intensive IELTS Introductory Session! Focusing on strengthening my communication skills and understanding the global standards of English proficiency. Looking forward to the next steps in my academic and professional journey.",
+      "rating": 5,
+      "image": "/abeera.jpg"
+    }
+  ],
+  "volunteers": [
+    {
+      "id": 1,
+      "name": "Muhammad Ammar",
+      "role": "Host Team",
+      "text": "I have had a blast being on the host team. It's been a huge learning curve for me, espacially managing the tiny details of an event and solving issues as they come up. Really grateful for this journey and the chance to learn alongside everyone in such a productive environment!",
+      "rating": 5,
+      "image": "/ammar.jpg"
+    },
+    {
+      "id": 2,
+      "name": "Umama Saif",
+      "role": "Social Media & Marketing",
+      "text": "Being part of YE has been a good experience overall. There's always something happening which keeps things interestng. I have learned a few new things and got to be involved more than I expected. I feel that YE encourages participation and helps members grow in confidence and responsibility.",
+      "rating": 5,
+      "image": "/umama.jpg"
+    },
+    {
+      "id": 3,
+      "name": "Fizah Memon",
+      "role": "Host Team",
+      "text": "It has been a wonderful experience with YE, especially working with the host team member Alishba. This opportunity provided me with a platform to interact with the audience and develop my skills as a host.",
+      "rating": 5,
+      "image": "/fizah.jpg"
+    }
+  ]
+}

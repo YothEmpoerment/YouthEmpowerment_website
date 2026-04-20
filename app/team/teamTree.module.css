@@ -1,0 +1,204 @@
+.mainTreeCard {
+  border: 1px solid #dbe5f5;
+  border-radius: 18px;
+  box-shadow: 0 12px 28px rgba(4, 78, 173, 0.08);
+  background: #ffffff;
+}
+
+.verticalConnector {
+  width: 3px;
+  height: 30px;
+  margin: 0.9rem auto;
+  border-radius: 999px;
+  background: #7fa4d8;
+}
+
+.departmentCard {
+  border: 1px solid #dbe5f5;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 8px 18px rgba(4, 78, 173, 0.07);
+}
+
+.departmentIcon {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #044ead;
+  color: #ffffff;
+}
+
+.treeCard {
+  border: 1px solid #dbe5f5;
+  border-radius: 14px;
+  background: #f7faff;
+}
+
+.personCard {
+  border: 1px solid #dbe5f5;
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.avatarWrap {
+  width: 48px;
+  height: 48px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 999px;
+  border: 1px solid #c7d9f6;
+  flex-shrink: 0;
+}
+
+.departmentBridge {
+  margin: 1rem 0 0.75rem;
+}
+
+.bridgeVertical {
+  width: 3px;
+  height: 28px;
+  margin: 0 auto;
+  border-radius: 999px;
+  background: #7fa4d8;
+}
+
+.bridgeHorizontal {
+  width: min(90%, 760px);
+  height: 3px;
+  margin: 0.25rem auto 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #adc5ea 0%, #5d8dcc 50%, #adc5ea 100%);
+}
+
+.departmentCol {
+  padding-top: 1rem;
+}
+
+.departmentDropLine {
+  width: 3px;
+  height: 16px;
+  border-radius: 999px;
+  background: #7fa4d8;
+  margin: 0 auto 0.35rem;
+}
+
+.departmentToTeams {
+  width: 3px;
+  height: 18px;
+  border-radius: 999px;
+  background: #8fb0de;
+  margin: 0.2rem auto 0.9rem;
+}
+
+.teamRail {
+  position: relative;
+  border-left: 2px solid #8fb0de;
+  padding-left: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+}
+
+.teamRailNode {
+  position: relative;
+}
+
+.teamRailNode::before {
+  content: "";
+  position: absolute;
+  top: 24px;
+  left: -1rem;
+  width: 1rem;
+  height: 2px;
+  background: #8fb0de;
+}
+
+.teamLeadBlock {
+  position: relative;
+  padding-bottom: 1.1rem;
+}
+
+.teamLeadBlock::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  width: 2px;
+  height: 14px;
+  background: #b7c9ea;
+}
+
+.memberRow {
+  position: relative;
+  padding-top: 0.9rem;
+}
+
+.memberRow::before {
+  content: "";
+  position: absolute;
+  left: 0.55rem;
+  right: 0.55rem;
+  top: 0;
+  height: 2px;
+  background: #b7c9ea;
+}
+
+.memberNode {
+  position: relative;
+  padding-top: 0.8rem;
+}
+
+.memberNode::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 0;
+  width: 2px;
+  height: 11px;
+  background: #b7c9ea;
+}
+
+.hoverLift {
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.hoverLift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 26px rgba(4, 78, 173, 0.16);
+}
+
+@media (max-width: 767.98px) {
+  .mainTreeCard,
+  .departmentCard,
+  .treeCard,
+  .personCard {
+    border-radius: 12px;
+  }
+
+  .bridgeHorizontal {
+    width: 88%;
+  }
+
+  .departmentDropLine {
+    height: 12px;
+  }
+
+  .teamRail {
+    padding-left: 0.8rem;
+  }
+
+  .teamRailNode::before {
+    left: -0.8rem;
+    width: 0.8rem;
+  }
+
+  .memberRow::before {
+    left: 0.4rem;
+    right: 0.4rem;
+  }
+}

@@ -1,0 +1,66 @@
+[
+  {
+    "id": 1,
+    "name": "Ahmed Raza",
+    "role": "Founder & CEO",
+    "bio": "Passionate about empowering students through technology education and mentorship.",
+    "image": "https://ui-avatars.com/api/?name=Ahmed+Raza&background=0e9de8&color=fff&size=200",
+    "linkedin": "https://www.linkedin.com/company/youth-empowerment-community/"
+  },
+  {
+    "id": 2,
+    "name": "Sarah Khan",
+    "role": "Head of Programs",
+    "bio": "Leads technical and leadership development programs for student growth.",
+    "image": "https://ui-avatars.com/api/?name=Sarah+Khan&background=f97316&color=fff&size=200",
+    "linkedin": "https://www.linkedin.com/company/youth-empowerment-community/"
+  },
+  {
+    "id": 3,
+    "name": "Usman Ali",
+    "role": "Tech Lead",
+    "bio": "Designs and delivers hands-on coding workshops and technical curricula.",
+    "image": "https://ui-avatars.com/api/?name=Usman+Ali&background=7c3aed&color=fff&size=200",
+    "linkedin": "https://www.linkedin.com/company/youth-empowerment-community/"
+  },
+  {
+    "id": 4,
+    "name": "Fatima Malik",
+    "role": "Community Manager",
+    "bio": "Builds and nurtures a welcoming, inclusive community for every student.",
+    "image": "https://ui-avatars.com/api/?name=Fatima+Malik&background=0891b2&color=fff&size=200",
+    "linkedin": "https://www.linkedin.com/company/youth-empowerment-community/"
+  },
+  {
+    "id": 5,
+    "name": "Bilal Hassan",
+    "role": "Mentor Coordinator",
+    "bio": "Connects students with industry professionals for meaningful mentorship.",
+    "image": "https://ui-avatars.com/api/?name=Bilal+Hassan&background=059669&color=fff&size=200",
+    "linkedin": "https://www.linkedin.com/company/youth-empowerment-community/"
+  },
+  {
+    "id": 6,
+    "name": "Zara Hussain",
+    "role": "Marketing Lead",
+    "bio": "Drives outreach and storytelling to spread the YE mission further.",
+    "image": "https://ui-avatars.com/api/?name=Zara+Hussain&background=dc2626&color=fff&size=200",
+    "linkedin": "https://www.linkedin.com/company/youth-empowerment-community/"
+  },
+  {
+    "id": 7,
+    "name": "Omar Sheikh",
+    "role": "Events Manager",
+    "bio": "Plans and executes impactful workshops, bootcamps, and networking events.",
+    "image": "https://ui-avatars.com/api/?name=Omar+Sheikh&background=d97706&color=fff&size=200",
+    "linkedin": "https://www.linkedin.com/company/youth-empowerment-community/"
+  },
+  {
+    "id": 8,
+    "name": "Ayesha Noor",
+    "role": "Content Creator",
+    "bio": "Creates educational content and resources that inspire student learning.",
+    "image": "https://ui-avatars.com/api/?name=Ayesha+Noor&background=be185d&color=fff&size=200",
+    "linkedin": "https://www.linkedin.com/company/youth-empowerment-community/"
+  }
+]
