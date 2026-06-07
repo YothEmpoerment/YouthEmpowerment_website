@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
-    const { title, description, eventDate } = await req.json();
+    const { title, description, eventDate, questions, socialLinks } = await req.json();
 
     if (!title || !eventDate) {
       return NextResponse.json({ error: "Title and event date are required" }, { status: 400 });
@@ -45,6 +45,8 @@ export async function POST(req: NextRequest) {
         eventDate: new Date(eventDate),
         slug,
         isOpen: true,
+        questions: questions || null,
+        socialLinks: socialLinks || null,
       },
     });
 

@@ -17,7 +17,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   return NextResponse.json(form);
 }
 
-// PATCH /api/yep-admin/forms/[id] - update form (title, description, eventDate, isOpen)
+// PATCH /api/yep-admin/forms/[id] - update form
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSessionFromRequest(req);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -31,6 +31,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (body.description !== undefined) updateData.description = body.description;
     if (body.eventDate !== undefined) updateData.eventDate = new Date(body.eventDate);
     if (body.isOpen !== undefined) updateData.isOpen = body.isOpen;
+    if (body.questions !== undefined) updateData.questions = body.questions;
+    if (body.socialLinks !== undefined) updateData.socialLinks = body.socialLinks;
 
     const form = await db.attendanceForm.update({ where: { id }, data: updateData });
     return NextResponse.json(form);

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { validateEmail } from "@/lib/emailValidator";
 
 // GET /api/attend/[slug] - get public form info
 export async function GET(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
@@ -13,6 +14,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
       description: true,
       eventDate: true,
       isOpen: true,
+      questions: true,
+      socialLinks: true,
       _count: { select: { responses: true } },
     },
   });
@@ -28,21 +31,27 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
   try {
     const form = await db.attendanceForm.findUnique({
       where: { slug },
-      select: { id: true, isOpen: true },
+      select: { id: true, isOpen: true, questions: true },
     });
 
     if (!form) return NextResponse.json({ error: "Form not found" }, { status: 404 });
     if (!form.isOpen) return NextResponse.json({ error: "This form is closed" }, { status: 403 });
 
-    const { name, email, phone } = await req.json();
+    const { name, email, phone, answers } = await req.json();
 
     if (!name || !email) {
       return NextResponse.json({ error: "Name and email are required" }, { status: 400 });
     }
 
+    // Validate email
+    const emailCheck = validateEmail(email);
+    if (!emailCheck.valid) {
+      return NextResponse.json({ error: emailCheck.reason }, { status: 422 });
+    }
+
     // Check for duplicate
     const existing = await db.attendanceResponse.findUnique({
-      where: { formId_email: { formId: form.id, email } },
+      where: { formId_email: { formId: form.id, email: email.trim().toLowerCase() } },
     });
 
     if (existing) {
@@ -53,7 +62,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ slu
     }
 
     const response = await db.attendanceResponse.create({
-      data: { formId: form.id, name, email, phone: phone || null },
+      data: {
+        formId: form.id,
+        name,
+        email: email.trim().toLowerCase(),
+        phone: phone || null,
+        answers: answers || null,
+      },
     });
 
     return NextResponse.json({ success: true, id: response.id }, { status: 201 });

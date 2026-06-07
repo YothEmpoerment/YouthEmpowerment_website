@@ -26,16 +26,19 @@ model AttendanceForm {
   createdAt   DateTime             @default(now())
   updatedAt   DateTime             @updatedAt
   responses   AttendanceResponse[]
+  questions   Json?
+  socialLinks Json?
 }
 
 model AttendanceResponse {
-  id        String         @id @default(cuid())
-  formId    String
-  form      AttendanceForm @relation(fields: [formId], references: [id], onDelete: Cascade)
-  name      String
-  email     String
-  phone     String?
-  submittedAt DateTime     @default(now())
+  id          String         @id @default(cuid())
+  formId      String
+  form        AttendanceForm @relation(fields: [formId], references: [id], onDelete: Cascade)
+  name        String
+  email       String
+  phone       String?
+  submittedAt DateTime       @default(now())
+  answers     Json?
 
   @@unique([formId, email])
 }

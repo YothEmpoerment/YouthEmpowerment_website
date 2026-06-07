@@ -1,12 +1,19 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
+interface Question {
+  id: string;
+  label: string;
+  type: string;
+}
+
 interface Response {
   id: string;
   name: string;
   email: string;
   phone: string | null;
   submittedAt: string;
+  answers?: Record<string, string | string[]> | null;
 }
 
 interface FormData {
@@ -15,6 +22,7 @@ interface FormData {
   eventDate: string;
   slug: string;
   isOpen: boolean;
+  questions?: Question[] | null;
   responses: Response[];
 }
 
@@ -43,7 +51,7 @@ export function generateAttendancePDF(form: FormData) {
   doc.setTextColor(255, 255, 255);
   doc.text(form.isOpen ? "OPEN" : "CLOSED", 25, 32, { align: "center" });
 
-  // Form info section
+  // Form info
   doc.setTextColor(30, 30, 30);
   doc.setFontSize(14);
   doc.setFont("helvetica", "bold");
@@ -66,7 +74,22 @@ export function generateAttendancePDF(form: FormData) {
   doc.setDrawColor(230, 230, 230);
   doc.line(14, form.description ? 90 : 83, 196, form.description ? 90 : 83);
 
-  // Table
+  // Build dynamic columns
+  const questions: Question[] = Array.isArray(form.questions) ? form.questions : [];
+  const baseHeaders = ["#", "Full Name", "Email", "Phone"];
+  const customHeaders = questions.map(q => q.label);
+  const allHeaders = [...baseHeaders, ...customHeaders, "Submitted At"];
+
+  const rows = form.responses.map((r, i) => {
+    const base = [String(i + 1), r.name, r.email, r.phone || "—"];
+    const customAnswers = questions.map(q => {
+      const val = r.answers?.[q.id];
+      return Array.isArray(val) ? val.join(", ") : val || "—";
+    });
+    const date = new Date(r.submittedAt).toLocaleString("en-US", { dateStyle: "short", timeStyle: "short" });
+    return [...base, ...customAnswers, date];
+  });
+
   if (form.responses.length === 0) {
     doc.setFontSize(11);
     doc.setTextColor(150, 150, 150);
@@ -74,34 +97,19 @@ export function generateAttendancePDF(form: FormData) {
   } else {
     autoTable(doc, {
       startY: form.description ? 95 : 88,
-      head: [["#", "Full Name", "Email Address", "Phone", "Submitted At"]],
-      body: form.responses.map((r, i) => [
-        String(i + 1),
-        r.name,
-        r.email,
-        r.phone || "—",
-        new Date(r.submittedAt).toLocaleString("en-US", { dateStyle: "short", timeStyle: "short" }),
-      ]),
-      styles: {
-        fontSize: 9,
-        cellPadding: 4,
-        overflow: "linebreak",
-      },
+      head: [allHeaders],
+      body: rows,
+      styles: { fontSize: 8, cellPadding: 3, overflow: "linebreak" },
       headStyles: {
-        fillColor: [99, 102, 241],
-        textColor: [255, 255, 255],
-        fontStyle: "bold",
-        fontSize: 9,
+        fillColor: [99, 102, 241], textColor: [255, 255, 255],
+        fontStyle: "bold", fontSize: 8,
       },
-      alternateRowStyles: {
-        fillColor: [248, 248, 255],
-      },
+      alternateRowStyles: { fillColor: [248, 248, 255] },
       columnStyles: {
-        0: { cellWidth: 10 },
-        1: { cellWidth: 40 },
-        2: { cellWidth: 60 },
-        3: { cellWidth: 30 },
-        4: { cellWidth: 45 },
+        0: { cellWidth: 8 },
+        1: { cellWidth: 35 },
+        2: { cellWidth: 45 },
+        3: { cellWidth: 25 },
       },
       margin: { left: 14, right: 14 },
     });
@@ -119,7 +127,8 @@ export function generateAttendancePDF(form: FormData) {
     );
   }
 
-  // Save
-  const safeName = form.title.replace(/[^a-z0-9]/gi, "_").toLowerCase();
-  doc.save(`attendance_${safeName}_${eventDateStr.replace(/\s/g, "_")}.pdf`);
+  // Open in new browser tab instead of direct download
+  const blob = doc.output("blob");
+  const url = URL.createObjectURL(blob);
+  window.open(url, "_blank");
 }
