@@ -43,15 +43,6 @@ export async function DELETE(req: NextRequest) {
       }
     });
 
-    // Log this deletion itself as an administrative audit log
-    const { logAdminAction } = await import("@/lib/adminLogger");
-    await logAdminAction({
-      adminName: session.adminName || session.username,
-      action: "LOGS_DELETED",
-      details: `Deleted ${logIds.length} activity logs`,
-      req
-    });
-
     return NextResponse.json({ success: true, count: logIds.length });
   } catch (error) {
     console.error("Delete admin logs error:", error);
