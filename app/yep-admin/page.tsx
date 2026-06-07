@@ -126,11 +126,53 @@ export default function AdminDashboard() {
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
   const [logs, setLogs] = useState<any[]>([]);
   const [loadingLogs, setLoadingLogs] = useState(true);
+  const [selectedLogs, setSelectedLogs] = useState<Record<string, boolean>>({});
+  const [showDeleteLogsModal, setShowDeleteLogsModal] = useState(false);
+  const [deleteLogsPassword, setDeleteLogsPassword] = useState("");
+  const [deleteLogsError, setDeleteLogsError] = useState("");
+  const [deletingLogs, setDeletingLogs] = useState(false);
 
   const showToast = (msg: string, type: "success" | "error" = "success") => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3500);
   };
+
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      const next: Record<string, boolean> = {};
+      logs.forEach(l => { next[l.id] = true; });
+      setSelectedLogs(next);
+    } else {
+      setSelectedLogs({});
+    }
+  };
+
+  async function handleDeleteLogs() {
+    setDeletingLogs(true);
+    setDeleteLogsError("");
+    const logIds = Object.keys(selectedLogs).filter(k => selectedLogs[k]);
+    try {
+      const res = await fetch("/api/yep-admin/logs", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ logIds, password: deleteLogsPassword }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(`Successfully deleted ${logIds.length} logs`);
+        setSelectedLogs({});
+        setDeleteLogsPassword("");
+        setShowDeleteLogsModal(false);
+        fetchLogs();
+      } else {
+        setDeleteLogsError(data.error || "Failed to delete logs");
+      }
+    } catch {
+      setDeleteLogsError("Network error occurred");
+    } finally {
+      setDeletingLogs(false);
+    }
+  }
 
   const fetchLogs = useCallback(async () => {
     setLoadingLogs(true);
@@ -430,26 +472,46 @@ export default function AdminDashboard() {
 
         {/* Admin Activity Logs Section */}
         <div style={{ marginTop: "3rem", borderTop: `1px solid ${C.border}`, paddingTop: "2rem" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem", flexWrap: "wrap", gap: "1rem" }}>
             <div>
               <h2 style={{ fontSize: "1.2rem", fontWeight: 700, margin: 0, color: C.text }}>Admin Activity Logs</h2>
               <p style={{ color: C.muted, fontSize: "0.775rem", margin: "0.2rem 0 0" }}>
                 Real-time security and management activity log
               </p>
             </div>
-            <button 
-              onClick={fetchLogs} 
-              disabled={loadingLogs}
-              style={{
-                display: "inline-flex", alignItems: "center", gap: "0.3rem",
-                padding: "0.4rem 0.8rem", border: `1px solid ${C.border}`,
-                borderRadius: "8px", background: "rgba(255,255,255,0.02)", color: C.text,
-                fontSize: "0.775rem", fontWeight: 500, cursor: "pointer",
-                fontFamily: "inherit"
-              }}
-            >
-              Refresh Logs
-            </button>
+            <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
+              {Object.keys(selectedLogs).filter(k => selectedLogs[k]).length > 0 && (
+                <button 
+                  onClick={() => {
+                    setDeleteLogsError("");
+                    setDeleteLogsPassword("");
+                    setShowDeleteLogsModal(true);
+                  }} 
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: "0.3rem",
+                    padding: "0.4rem 0.8rem", border: `1px solid ${C.danger}`,
+                    borderRadius: "8px", background: "rgba(239,68,68,0.1)", color: "#fca5a5",
+                    fontSize: "0.775rem", fontWeight: 600, cursor: "pointer",
+                    fontFamily: "inherit"
+                  }}
+                >
+                  Delete Selected ({Object.keys(selectedLogs).filter(k => selectedLogs[k]).length})
+                </button>
+              )}
+              <button 
+                onClick={fetchLogs} 
+                disabled={loadingLogs}
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: "0.3rem",
+                  padding: "0.4rem 0.8rem", border: `1px solid ${C.border}`,
+                  borderRadius: "8px", background: "rgba(255,255,255,0.02)", color: C.text,
+                  fontSize: "0.775rem", fontWeight: 500, cursor: "pointer",
+                  fontFamily: "inherit"
+                }}
+              >
+                Refresh Logs
+              </button>
+            </div>
           </div>
 
           {loadingLogs && logs.length === 0 ? (
@@ -469,6 +531,14 @@ export default function AdminDashboard() {
                 <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
                   <thead>
                     <tr style={{ borderBottom: `1px solid ${C.border}`, background: "rgba(255,255,255,0.01)" }}>
+                      <th style={{ padding: "0.85rem 1rem", width: "40px" }}>
+                        <input 
+                          type="checkbox" 
+                          checked={logs.length > 0 && logs.every(l => selectedLogs[l.id])}
+                          onChange={handleSelectAll}
+                          style={{ cursor: "pointer" }}
+                        />
+                      </th>
                       <th style={{ padding: "0.85rem 1rem", color: C.muted, fontWeight: 600 }}>Time</th>
                       <th style={{ padding: "0.85rem 1rem", color: C.muted, fontWeight: 600 }}>Admin</th>
                       <th style={{ padding: "0.85rem 1rem", color: C.muted, fontWeight: 600 }}>Action</th>
@@ -496,6 +566,14 @@ export default function AdminDashboard() {
                             onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.01)")}
                             onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
                         >
+                          <td style={{ padding: "0.85rem 1rem" }}>
+                            <input 
+                              type="checkbox" 
+                              checked={!!selectedLogs[log.id]}
+                              onChange={() => setSelectedLogs(prev => ({ ...prev, [log.id]: !prev[log.id] }))}
+                              style={{ cursor: "pointer" }}
+                            />
+                          </td>
                           <td style={{ padding: "0.85rem 1rem", color: C.muted, whiteSpace: "nowrap" }}>
                             {new Date(log.createdAt).toLocaleString()}
                           </td>
@@ -543,6 +621,74 @@ export default function AdminDashboard() {
         />
       )}
 
+      {showDeleteLogsModal && (
+        <div style={{
+          position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)",
+          backdropFilter: "blur(6px)", display: "flex", alignItems: "center",
+          justifyContent: "center", zIndex: 1000, padding: "1rem",
+        }} onClick={() => setShowDeleteLogsModal(false)}>
+          <div style={{
+            background: "#1a2236", border: "1px solid rgba(255,255,255,0.1)",
+            borderRadius: "20px", padding: "2.25rem 2rem", width: "100%", maxWidth: "420px",
+            boxShadow: "0 30px 60px rgba(0,0,0,0.6)",
+          }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ margin: 0, color: "#fca5a5", fontSize: "1.1rem", fontWeight: 700 }}>Confirm Log Deletion</h3>
+            <p style={{ margin: "0.5rem 0 1.25rem", color: "rgba(255,255,255,0.6)", fontSize: "0.85rem", lineHeight: 1.4 }}>
+              You are about to delete <strong>{Object.keys(selectedLogs).filter(k => selectedLogs[k]).length}</strong> activity logs. 
+              This action requires the master log deletion password.
+            </p>
+
+            <div style={{ marginBottom: "1.25rem" }}>
+              <label style={{ display: "block", color: "rgba(255,255,255,0.5)", fontSize: "0.78rem", marginBottom: "0.35rem", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.04em" }}>Master Password</label>
+              <input 
+                type="password" 
+                value={deleteLogsPassword}
+                onChange={e => setDeleteLogsPassword(e.target.value)}
+                placeholder="Enter log deletion password"
+                style={{
+                  width: "100%", padding: "0.65rem 0.9rem",
+                  background: "rgba(255,255,255,0.06)",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  borderRadius: "8px", color: "#f1f5f9",
+                  fontSize: "0.875rem", outline: "none", boxSizing: "border-box",
+                }}
+              />
+            </div>
+
+            {deleteLogsError && (
+              <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: "8px", padding: "0.6rem", color: "#fca5a5", fontSize: "0.8rem", marginBottom: "1rem" }}>
+                {deleteLogsError}
+              </div>
+            )}
+
+            <div style={{ display: "flex", gap: "0.75rem" }}>
+              <button 
+                type="button"
+                onClick={() => setShowDeleteLogsModal(false)}
+                style={{
+                  flex: 1, padding: "0.6rem", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
+                  borderRadius: "8px", color: "rgba(255,255,255,0.6)", cursor: "pointer", fontWeight: 500, fontSize: "0.85rem",
+                }}
+              >
+                Cancel
+              </button>
+              <button 
+                type="button"
+                onClick={handleDeleteLogs}
+                disabled={deletingLogs || !deleteLogsPassword}
+                style={{
+                  flex: 1.5, padding: "0.65rem", background: "rgba(239,68,68,0.85)", border: "none",
+                  borderRadius: "8px", color: "#fff", cursor: (deletingLogs || !deleteLogsPassword) ? "not-allowed" : "pointer", 
+                  fontWeight: 600, fontSize: "0.85rem", opacity: (deletingLogs || !deleteLogsPassword) ? 0.6 : 1
+                }}
+              >
+                {deletingLogs ? "Deleting..." : "Delete Logs"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style>{`
         @keyframes slideIn { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: translateX(0); } }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -566,6 +712,9 @@ export default function AdminDashboard() {
           .form-actions > button, .form-actions > a {
             flex: 1 1 calc(50% - 0.4rem) !important;
             justify-content: center !important;
+            padding: 0.6rem 1.0rem !important;
+            font-size: 0.85rem !important;
+            border-radius: 8px !important;
           }
         }
 
@@ -580,6 +729,8 @@ export default function AdminDashboard() {
           }
           .form-actions > button, .form-actions > a {
             flex: 1 1 100% !important;
+            padding: 0.7rem 1.0rem !important;
+            font-size: 0.875rem !important;
           }
         }
       `}</style>

@@ -27,11 +27,25 @@ interface FormData {
 }
 
 export function generateAttendancePDF(form: FormData) {
-  const doc = new jsPDF();
+  const questions: Question[] = Array.isArray(form.questions) ? form.questions : [];
+  const baseHeaders = ["#", "Full Name", "Email", "Phone"];
+  const customHeaders = questions.map(q => q.label);
+  const allHeaders = [...baseHeaders, ...customHeaders, "Submitted At"];
+
+  // Switch to landscape if there are more than 5 columns total
+  const isLandscape = allHeaders.length > 5;
+  const doc = new jsPDF({
+    orientation: isLandscape ? "landscape" : "portrait",
+    unit: "mm",
+    format: "a4"
+  });
+
+  const pageWidth = isLandscape ? 297 : 210;
+  const pageHeight = isLandscape ? 210 : 297;
 
   // Header background
   doc.setFillColor(99, 102, 241);
-  doc.rect(0, 0, 210, 40, "F");
+  doc.rect(0, 0, pageWidth, 40, "F");
 
   // Title
   doc.setTextColor(255, 255, 255);
@@ -72,13 +86,7 @@ export function generateAttendancePDF(form: FormData) {
 
   // Divider
   doc.setDrawColor(230, 230, 230);
-  doc.line(14, form.description ? 90 : 83, 196, form.description ? 90 : 83);
-
-  // Build dynamic columns
-  const questions: Question[] = Array.isArray(form.questions) ? form.questions : [];
-  const baseHeaders = ["#", "Full Name", "Email", "Phone"];
-  const customHeaders = questions.map(q => q.label);
-  const allHeaders = [...baseHeaders, ...customHeaders, "Submitted At"];
+  doc.line(14, form.description ? 90 : 83, pageWidth - 14, form.description ? 90 : 83);
 
   const rows = form.responses.map((r, i) => {
     const base = [String(i + 1), r.name, r.email, r.phone || "—"];
@@ -95,22 +103,36 @@ export function generateAttendancePDF(form: FormData) {
     doc.setTextColor(150, 150, 150);
     doc.text("No responses submitted yet.", 14, form.description ? 100 : 93);
   } else {
+    // Scale down text if column count is high
+    let fontSize = 8;
+    if (allHeaders.length > 8) {
+      fontSize = 5.5;
+    } else if (allHeaders.length > 5) {
+      fontSize = 7;
+    }
+
+    const columnStyles: Record<number, { cellWidth?: number | "auto" | "wrap" }> = {
+      0: { cellWidth: 8 }, // "#"
+    };
+
+    // If landscape / many columns, let autoTable auto-wrap name/email/phone natively to avoid horizontal overlap
+    if (!isLandscape) {
+      columnStyles[1] = { cellWidth: 35 };
+      columnStyles[2] = { cellWidth: 45 };
+      columnStyles[3] = { cellWidth: 25 };
+    }
+
     autoTable(doc, {
       startY: form.description ? 95 : 88,
       head: [allHeaders],
       body: rows,
-      styles: { fontSize: 8, cellPadding: 3, overflow: "linebreak" },
+      styles: { fontSize, cellPadding: 2.5, overflow: "linebreak" },
       headStyles: {
         fillColor: [99, 102, 241], textColor: [255, 255, 255],
-        fontStyle: "bold", fontSize: 8,
+        fontStyle: "bold", fontSize,
       },
       alternateRowStyles: { fillColor: [248, 248, 255] },
-      columnStyles: {
-        0: { cellWidth: 8 },
-        1: { cellWidth: 35 },
-        2: { cellWidth: 45 },
-        3: { cellWidth: 25 },
-      },
+      columnStyles,
       margin: { left: 14, right: 14 },
     });
   }
@@ -123,7 +145,7 @@ export function generateAttendancePDF(form: FormData) {
     doc.setTextColor(180, 180, 180);
     doc.text(
       `Youth Empowerment Programme — Attendance Report — Page ${i} of ${pageCount}`,
-      105, 290, { align: "center" }
+      pageWidth / 2, pageHeight - 7, { align: "center" }
     );
   }
 
