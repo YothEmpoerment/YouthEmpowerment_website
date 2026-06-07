@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Admin {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model AttendanceForm {
+  id          String               @id @default(cuid())
+  title       String
+  description String?
+  eventDate   DateTime
+  slug        String               @unique
+  isOpen      Boolean              @default(true)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  responses   AttendanceResponse[]
+}
+
+model AttendanceResponse {
+  id        String         @id @default(cuid())
+  formId    String
+  form      AttendanceForm @relation(fields: [formId], references: [id], onDelete: Cascade)
+  name      String
+  email     String
+  phone     String?
+  submittedAt DateTime     @default(now())
+
+  @@unique([formId, email])
+}

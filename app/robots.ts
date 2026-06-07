@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: "/api/",
+      disallow: ["/api/", "/yep-admin/"],
     },
     sitemap: "https://youthempowerment.community/sitemap.xml",
   };
