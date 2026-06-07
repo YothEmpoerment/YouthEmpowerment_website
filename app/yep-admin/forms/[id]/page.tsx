@@ -85,7 +85,7 @@ export default function FormResponsesPage({ params }: { params: Promise<{ id: st
 
   return (
     <div style={{ minHeight: "100vh", background: C.bg, color: C.text, fontFamily: "'Inter','Segoe UI',system-ui,sans-serif" }}>
-      <header style={{
+      <header className="admin-header" style={{
         background: "rgba(10,15,30,0.9)", backdropFilter: "blur(12px)",
         borderBottom: `1px solid ${C.border}`, padding: "0 2rem",
         height: "60px", display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -102,7 +102,7 @@ export default function FormResponsesPage({ params }: { params: Promise<{ id: st
             Dashboard
           </Link>
           <span style={{ color: C.border }}>|</span>
-          <span style={{ fontWeight: 700, fontSize: "0.875rem" }}>{form.title}</span>
+          <span className="breadcrumbs-title" style={{ fontWeight: 700, fontSize: "0.875rem" }}>{form.title}</span>
         </div>
         <button
           id="download-pdf-btn"
@@ -123,7 +123,7 @@ export default function FormResponsesPage({ params }: { params: Promise<{ id: st
         </button>
       </header>
 
-      <main style={{ maxWidth: "1200px", margin: "0 auto", padding: "2rem 1.5rem" }}>
+      <main className="admin-main" style={{ maxWidth: "1200px", margin: "0 auto", padding: "2rem 1.5rem" }}>
         {/* Form info */}
         <div style={{
           background: C.card, border: `1px solid ${C.border}`,
@@ -232,6 +232,23 @@ export default function FormResponsesPage({ params }: { params: Promise<{ id: st
         @keyframes spin { to { transform: rotate(360deg); } }
         * { box-sizing: border-box; }
         input, button, a { font-family: inherit; }
+
+        @media (max-width: 600px) {
+          .admin-header {
+            padding: 0 1rem !important;
+          }
+          .admin-main {
+            padding: 1rem 0.75rem !important;
+          }
+          .breadcrumbs-title {
+            max-width: 140px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: inline-block;
+            vertical-align: middle;
+          }
+        }
       `}</style>
     </div>
   );

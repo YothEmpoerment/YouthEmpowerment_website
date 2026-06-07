@@ -31,12 +31,44 @@ interface FormInfo {
 
 type PageState = "loading" | "not_found" | "closed" | "form" | "success" | "duplicate";
 
-const SOCIAL_CONFIG = [
-  { key: "facebook", label: "Facebook", color: "#1877f2" },
-  { key: "instagram", label: "Instagram", color: "#e1306c" },
-  { key: "twitter", label: "Twitter / X", color: "#1da1f2" },
-  { key: "linkedin", label: "LinkedIn", color: "#0a66c2" },
-  { key: "youtube", label: "YouTube", color: "#ff0000" },
+const PERMANENT_SOCIALS = [
+  {
+    key: "whatsapp",
+    label: "WhatsApp",
+    url: "https://chat.whatsapp.com/EjuiPvLmiPfFKtXRw54lgP",
+    color: "#25d366",
+    icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+      </svg>
+    )
+  },
+  {
+    key: "instagram",
+    label: "Instagram",
+    url: "https://www.instagram.com/_youthempowerment_/",
+    color: "#e1306c",
+    icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+      </svg>
+    )
+  },
+  {
+    key: "linkedin",
+    label: "LinkedIn",
+    url: "https://www.linkedin.com/company/youth-empowerment-community/",
+    color: "#0077b5",
+    icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+        <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+        <rect x="2" y="9" width="4" height="12"/>
+        <circle cx="4" cy="4" r="2"/>
+      </svg>
+    )
+  }
 ];
 
 const inputBase: React.CSSProperties = {
@@ -132,8 +164,6 @@ export default function AttendancePage({ params }: { params: Promise<{ slug: str
   };
 
   const questions: Question[] = Array.isArray(formInfo?.questions) ? (formInfo!.questions as Question[]) : [];
-  const socialLinks = formInfo?.socialLinks || {};
-  const hasSocial = SOCIAL_CONFIG.some(s => (socialLinks as Record<string, string>)[s.key]);
 
   // --- Status pages ---
   if (pageState === "loading") return (
@@ -182,32 +212,30 @@ export default function AttendancePage({ params }: { params: Promise<{ slug: str
           Thank you, <strong style={{ color: "#a5b4fc" }}>{name}</strong>! Your attendance has been registered.
         </p>
         {formInfo && (
-          <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "12px", padding: "1rem", marginBottom: hasSocial ? "1.5rem" : 0 }}>
+          <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "12px", padding: "1rem", marginBottom: "1.5rem" }}>
             <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.8rem", margin: 0 }}>
               {formInfo.title} — {new Date(formInfo.eventDate).toLocaleDateString("en-US", { dateStyle: "long" })}
             </p>
           </div>
         )}
-        {hasSocial && (
-          <div>
-            <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.8rem", marginBottom: "0.75rem" }}>Stay connected — follow us on social media</p>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", justifyContent: "center" }}>
-              {SOCIAL_CONFIG.map(s => {
-                const url = (socialLinks as Record<string, string>)[s.key];
-                if (!url) return null;
-                return (
-                  <a key={s.key} href={url} target="_blank" rel="noopener noreferrer" style={{
-                    padding: "0.45rem 1rem", borderRadius: "8px", fontSize: "0.8rem", fontWeight: 600,
-                    background: `${s.color}18`, border: `1px solid ${s.color}40`, color: s.color,
-                    textDecoration: "none", transition: "all 0.15s",
-                  }}>
-                    {s.label}
-                  </a>
-                );
-              })}
-            </div>
+        <div style={{ marginTop: "1.5rem", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "1.25rem" }}>
+          <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.8rem", marginBottom: "0.85rem", fontWeight: 500 }}>
+            Stay connected — follow us on social media
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.6rem", justifyContent: "center" }}>
+            {PERMANENT_SOCIALS.map(s => (
+              <a key={s.key} href={s.url} target="_blank" rel="noopener noreferrer" style={{
+                display: "inline-flex", alignItems: "center", gap: "0.4rem",
+                padding: "0.5rem 0.95rem", borderRadius: "8px", fontSize: "0.8rem", fontWeight: 600,
+                background: `${s.color}15`, border: `1px solid ${s.color}35`, color: s.color,
+                textDecoration: "none", transition: "all 0.15s",
+              }}>
+                {s.icon}
+                <span>{s.label}</span>
+              </a>
+            ))}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
@@ -271,31 +299,27 @@ export default function AttendancePage({ params }: { params: Promise<{ slug: str
         </div>
 
         {/* Social follow prompt (before form) */}
-        {hasSocial && (
-          <div style={{
-            background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.15)",
-            borderRadius: "12px", padding: "1rem", marginBottom: "1.5rem",
-          }}>
-            <p style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.78rem", margin: "0 0 0.6rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-              Follow Us
-            </p>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
-              {SOCIAL_CONFIG.map(s => {
-                const url = (socialLinks as Record<string, string>)[s.key];
-                if (!url) return null;
-                return (
-                  <a key={s.key} href={url} target="_blank" rel="noopener noreferrer" style={{
-                    padding: "0.35rem 0.8rem", borderRadius: "7px", fontSize: "0.75rem", fontWeight: 600,
-                    background: `${s.color}18`, border: `1px solid ${s.color}40`, color: s.color,
-                    textDecoration: "none",
-                  }}>
-                    {s.label}
-                  </a>
-                );
-              })}
-            </div>
+        <div style={{
+          background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)",
+          borderRadius: "14px", padding: "1.1rem", marginBottom: "1.5rem",
+        }}>
+          <p style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.78rem", margin: "0 0 0.75rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            Follow Us
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.6rem" }}>
+            {PERMANENT_SOCIALS.map(s => (
+              <a key={s.key} href={s.url} target="_blank" rel="noopener noreferrer" style={{
+                display: "inline-flex", alignItems: "center", gap: "0.4rem",
+                padding: "0.45rem 0.85rem", borderRadius: "8px", fontSize: "0.78rem", fontWeight: 600,
+                background: `${s.color}15`, border: `1px solid ${s.color}35`, color: s.color,
+                textDecoration: "none", transition: "all 0.15s",
+              }}>
+                {s.icon}
+                <span>{s.label}</span>
+              </a>
+            ))}
           </div>
-        )}
+        </div>
 
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           {/* Fixed fields */}

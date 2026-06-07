@@ -42,3 +42,14 @@ model AttendanceResponse {
 
   @@unique([formId, email])
 }
+
+model AdminLog {
+  id        String   @id @default(cuid())
+  adminName String
+  action    String
+  details   String?
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+}
+

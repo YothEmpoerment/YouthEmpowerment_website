@@ -124,11 +124,29 @@ export default function AdminDashboard() {
   const [showCreate, setShowCreate] = useState(false);
   const [editingForm, setEditingForm] = useState<FormItem | null>(null);
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+  const [logs, setLogs] = useState<any[]>([]);
+  const [loadingLogs, setLoadingLogs] = useState(true);
 
   const showToast = (msg: string, type: "success" | "error" = "success") => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3500);
   };
+
+  const fetchLogs = useCallback(async () => {
+    setLoadingLogs(true);
+    try {
+      const res = await fetch("/api/yep-admin/logs");
+      if (res.status === 401) { router.push("/yep-admin/login"); return; }
+      if (res.ok) {
+        const data = await res.json();
+        setLogs(data);
+      }
+    } catch {
+      // ignore
+    } finally {
+      setLoadingLogs(false);
+    }
+  }, [router]);
 
   const fetchForms = useCallback(async () => {
     setLoading(true);
@@ -144,7 +162,10 @@ export default function AdminDashboard() {
     }
   }, [router]);
 
-  useEffect(() => { fetchForms(); }, [fetchForms]);
+  useEffect(() => {
+    fetchForms();
+    fetchLogs();
+  }, [fetchForms, fetchLogs]);
 
   async function handleLogout() {
     await fetch("/api/yep-admin/logout", { method: "POST" });
@@ -157,21 +178,21 @@ export default function AdminDashboard() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ isOpen: !form.isOpen }),
     });
-    if (res.ok) { showToast(`Form ${form.isOpen ? "closed" : "opened"}`); fetchForms(); }
+    if (res.ok) { showToast(`Form ${form.isOpen ? "closed" : "opened"}`); fetchForms(); fetchLogs(); }
     else showToast("Failed to toggle form", "error");
   }
 
   async function handleDelete(form: FormItem) {
     if (!confirm(`Delete "${form.title}"? This will also delete all ${form._count.responses} responses. This cannot be undone.`)) return;
     const res = await fetch(`/api/yep-admin/forms/${form.id}`, { method: "DELETE" });
-    if (res.ok) { showToast("Form deleted"); fetchForms(); }
+    if (res.ok) { showToast("Form deleted"); fetchForms(); fetchLogs(); }
     else showToast("Failed to delete form", "error");
   }
 
   async function handleReset(form: FormItem) {
     if (!confirm(`Reset all ${form._count.responses} responses for "${form.title}"?`)) return;
     const res = await fetch(`/api/yep-admin/forms/${form.id}/responses`, { method: "DELETE" });
-    if (res.ok) { showToast("Responses cleared"); fetchForms(); }
+    if (res.ok) { showToast("Responses cleared"); fetchForms(); fetchLogs(); }
     else showToast("Failed to reset responses", "error");
   }
 
@@ -268,7 +289,7 @@ export default function AdminDashboard() {
       <main style={{ maxWidth: "1200px", margin: "0 auto", padding: "2rem 1.5rem" }}>
 
         {/* Stats */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem", marginBottom: "2rem" }}>
+        <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem", marginBottom: "2rem" }}>
           {statCards.map((s) => (
             <div key={s.label} style={{
               background: C.card, border: `1px solid ${C.border}`,
@@ -293,7 +314,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Page header */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
+        <div className="page-header" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
           <div>
             <h1 style={{ fontSize: "1.4rem", fontWeight: 800, margin: "0 0 0.2rem", color: C.text }}>
               Attendance Forms
@@ -345,7 +366,7 @@ export default function AdminDashboard() {
                 onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.14)")}
                 onMouseLeave={e => (e.currentTarget.style.borderColor = C.border)}
               >
-                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
+                <div className="form-item-inner" style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
                   <div style={{ flex: 1, minWidth: "200px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", flexWrap: "wrap", marginBottom: "0.35rem" }}>
                       <h2 style={{ margin: 0, fontSize: "0.95rem", fontWeight: 700, color: C.text }}>{form.title}</h2>
@@ -374,7 +395,7 @@ export default function AdminDashboard() {
                     )}
                   </div>
 
-                  <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", alignItems: "center" }}>
+                  <div className="form-actions" style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", alignItems: "center" }}>
                     <a href={`/yep-admin/forms/${form.id}`} style={btnStyle("rgba(99,102,241,0.8)", "rgba(99,102,241,0.08)")}>
                       {Icons.eye} Responses
                     </a>
@@ -406,12 +427,111 @@ export default function AdminDashboard() {
             ))}
           </div>
         )}
+
+        {/* Admin Activity Logs Section */}
+        <div style={{ marginTop: "3rem", borderTop: `1px solid ${C.border}`, paddingTop: "2rem" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem" }}>
+            <div>
+              <h2 style={{ fontSize: "1.2rem", fontWeight: 700, margin: 0, color: C.text }}>Admin Activity Logs</h2>
+              <p style={{ color: C.muted, fontSize: "0.775rem", margin: "0.2rem 0 0" }}>
+                Real-time security and management activity log
+              </p>
+            </div>
+            <button 
+              onClick={fetchLogs} 
+              disabled={loadingLogs}
+              style={{
+                display: "inline-flex", alignItems: "center", gap: "0.3rem",
+                padding: "0.4rem 0.8rem", border: `1px solid ${C.border}`,
+                borderRadius: "8px", background: "rgba(255,255,255,0.02)", color: C.text,
+                fontSize: "0.775rem", fontWeight: 500, cursor: "pointer",
+                fontFamily: "inherit"
+              }}
+            >
+              Refresh Logs
+            </button>
+          </div>
+
+          {loadingLogs && logs.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "2rem", color: C.muted, fontSize: "0.875rem" }}>
+              Loading activity logs...
+            </div>
+          ) : logs.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "2rem", color: C.muted, fontSize: "0.875rem", background: C.card, border: `1px solid ${C.border}`, borderRadius: "12px" }}>
+              No admin activity recorded yet.
+            </div>
+          ) : (
+            <div style={{ 
+              background: C.card, border: `1px solid ${C.border}`, borderRadius: "14px", 
+              overflow: "hidden", fontSize: "0.8rem" 
+            }}>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+                  <thead>
+                    <tr style={{ borderBottom: `1px solid ${C.border}`, background: "rgba(255,255,255,0.01)" }}>
+                      <th style={{ padding: "0.85rem 1rem", color: C.muted, fontWeight: 600 }}>Time</th>
+                      <th style={{ padding: "0.85rem 1rem", color: C.muted, fontWeight: 600 }}>Admin</th>
+                      <th style={{ padding: "0.85rem 1rem", color: C.muted, fontWeight: 600 }}>Action</th>
+                      <th style={{ padding: "0.85rem 1rem", color: C.muted, fontWeight: 600 }}>Details</th>
+                      <th style={{ padding: "0.85rem 1rem", color: C.muted, fontWeight: 600 }}>IP / Agent</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {logs.map((log) => {
+                      let badgeColor = C.muted;
+                      let badgeBg = "rgba(255,255,255,0.05)";
+                      if (log.action.includes("CREATE") || log.action.includes("OPEN")) {
+                        badgeColor = C.success;
+                        badgeBg = "rgba(16,185,129,0.08)";
+                      } else if (log.action.includes("DELETE") || log.action.includes("RESET") || log.action.includes("FAILED")) {
+                        badgeColor = C.danger;
+                        badgeBg = "rgba(239,68,68,0.08)";
+                      } else if (log.action === "LOGIN" || log.action === "LOGOUT") {
+                        badgeColor = C.primary;
+                        badgeBg = "rgba(99,102,241,0.08)";
+                      }
+
+                      return (
+                        <tr key={log.id} style={{ borderBottom: `1px solid ${C.border}`, transition: "background 0.15s" }}
+                            onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.01)")}
+                            onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                        >
+                          <td style={{ padding: "0.85rem 1rem", color: C.muted, whiteSpace: "nowrap" }}>
+                            {new Date(log.createdAt).toLocaleString()}
+                          </td>
+                          <td style={{ padding: "0.85rem 1rem", fontWeight: 600 }}>
+                            {log.adminName}
+                          </td>
+                          <td style={{ padding: "0.85rem 1rem" }}>
+                            <span style={{
+                              padding: "0.15rem 0.5rem", borderRadius: "6px", fontSize: "0.7rem", fontWeight: 700,
+                              color: badgeColor, background: badgeBg, border: `1px solid ${badgeColor}20`
+                            }}>
+                              {log.action}
+                            </span>
+                          </td>
+                          <td style={{ padding: "0.85rem 1rem", color: C.text }}>
+                            {log.details}
+                          </td>
+                          <td style={{ padding: "0.85rem 1rem", color: C.muted, fontSize: "0.725rem", maxWidth: "250px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={`${log.ip} · ${log.userAgent}`}>
+                            <span style={{ color: C.text }}>{log.ip}</span>
+                            <span style={{ marginLeft: "0.4rem", opacity: 0.7 }}>· {log.userAgent.split(" ")[0] || log.userAgent}</span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
       </main>
 
       {showCreate && (
         <CreateFormModal
           onClose={() => setShowCreate(false)}
-          onCreated={() => { setShowCreate(false); fetchForms(); showToast("Form created!"); }}
+          onCreated={() => { setShowCreate(false); fetchForms(); fetchLogs(); showToast("Form created!"); }}
         />
       )}
 
@@ -419,7 +539,7 @@ export default function AdminDashboard() {
         <EditFormModal
           form={editingForm}
           onClose={() => setEditingForm(null)}
-          onUpdated={() => { setEditingForm(null); fetchForms(); showToast("Form updated!"); }}
+          onUpdated={() => { setEditingForm(null); fetchForms(); fetchLogs(); showToast("Form updated!"); }}
         />
       )}
 
@@ -429,6 +549,39 @@ export default function AdminDashboard() {
         * { box-sizing: border-box; }
         input, button, a, select, textarea { font-family: inherit; }
         option { background: #1a2236; color: #f1f5f9; }
+
+        @media (max-width: 768px) {
+          .stats-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .form-item-inner {
+            flex-direction: column !important;
+            align-items: stretch !important;
+          }
+          .form-actions {
+            width: 100% !important;
+            justify-content: flex-start !important;
+            margin-top: 1rem !important;
+          }
+          .form-actions > button, .form-actions > a {
+            flex: 1 1 calc(50% - 0.4rem) !important;
+            justify-content: center !important;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .page-header {
+            flex-direction: column !important;
+            align-items: stretch !important;
+          }
+          .page-header > button {
+            width: 100% !important;
+            justify-content: center !important;
+          }
+          .form-actions > button, .form-actions > a {
+            flex: 1 1 100% !important;
+          }
+        }
       `}</style>
     </div>
   );

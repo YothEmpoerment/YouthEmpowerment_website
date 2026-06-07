@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSessionFromRequest } from "@/lib/auth";
+import { logAdminAction } from "@/lib/adminLogger";
 
 function generateSlug(title: string): string {
   const base = title
@@ -48,6 +49,13 @@ export async function POST(req: NextRequest) {
         questions: questions || null,
         socialLinks: socialLinks || null,
       },
+    });
+
+    await logAdminAction({
+      adminName: session.adminName || session.username,
+      action: "FORM_CREATED",
+      details: `Created form "${title}" (slug: ${slug})`,
+      req,
     });
 
     return NextResponse.json(form, { status: 201 });

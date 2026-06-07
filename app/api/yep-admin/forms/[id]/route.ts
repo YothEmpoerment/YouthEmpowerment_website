@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSessionFromRequest } from "@/lib/auth";
+import { logAdminAction } from "@/lib/adminLogger";
 
 // GET /api/yep-admin/forms/[id] - get single form with responses
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -35,6 +36,22 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (body.socialLinks !== undefined) updateData.socialLinks = body.socialLinks;
 
     const form = await db.attendanceForm.update({ where: { id }, data: updateData });
+
+    // Determine what changed for the log
+    let action = "FORM_UPDATED";
+    let details = `Updated form "${form.title}"`;
+    if (body.isOpen !== undefined) {
+      action = body.isOpen ? "FORM_OPENED" : "FORM_CLOSED";
+      details = `${body.isOpen ? "Opened" : "Closed"} form "${form.title}"`;
+    }
+
+    await logAdminAction({
+      adminName: session.adminName || session.username,
+      action,
+      details,
+      req,
+    });
+
     return NextResponse.json(form);
   } catch (error) {
     console.error("Update form error:", error);
@@ -49,7 +66,16 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
   const { id } = await params;
   try {
+    const form = await db.attendanceForm.findUnique({ where: { id }, select: { title: true } });
     await db.attendanceForm.delete({ where: { id } });
+
+    await logAdminAction({
+      adminName: session.adminName || session.username,
+      action: "FORM_DELETED",
+      details: `Deleted form "${form?.title || id}"`,
+      req,
+    });
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Delete form error:", error);

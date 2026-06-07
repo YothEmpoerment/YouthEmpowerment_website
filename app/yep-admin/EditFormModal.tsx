@@ -10,14 +10,6 @@ interface Question {
   required: boolean;
 }
 
-interface SocialLinks {
-  facebook?: string;
-  instagram?: string;
-  twitter?: string;
-  linkedin?: string;
-  youtube?: string;
-}
-
 interface FormItem {
   id: string;
   title: string;
@@ -26,7 +18,6 @@ interface FormItem {
   slug: string;
   isOpen: boolean;
   questions?: Question[] | null;
-  socialLinks?: SocialLinks | null;
 }
 
 interface Props {
@@ -65,28 +56,17 @@ const QUESTION_TYPES = [
   { value: "checkbox", label: "Multiple Choice" },
 ];
 
-const SOCIAL_FIELDS = [
-  { key: "facebook", label: "Facebook", placeholder: "https://facebook.com/yourpage" },
-  { key: "instagram", label: "Instagram", placeholder: "https://instagram.com/yourhandle" },
-  { key: "twitter", label: "Twitter / X", placeholder: "https://twitter.com/yourhandle" },
-  { key: "linkedin", label: "LinkedIn", placeholder: "https://linkedin.com/in/yourprofile" },
-  { key: "youtube", label: "YouTube", placeholder: "https://youtube.com/@yourchannel" },
-];
-
 function genId() {
   return Math.random().toString(36).slice(2, 9);
 }
 
 export default function EditFormModal({ form, onClose, onUpdated }: Props) {
-  const [tab, setTab] = useState<"basic" | "questions" | "social">("basic");
+  const [tab, setTab] = useState<"basic" | "questions">("basic");
   const [title, setTitle] = useState(form.title);
   const [description, setDescription] = useState(form.description || "");
   const [eventDate, setEventDate] = useState(form.eventDate.slice(0, 10));
   const [questions, setQuestions] = useState<Question[]>(
     Array.isArray(form.questions) ? (form.questions as Question[]) : []
-  );
-  const [socialLinks, setSocialLinks] = useState<SocialLinks>(
-    (form.socialLinks as SocialLinks) || {}
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -95,6 +75,7 @@ export default function EditFormModal({ form, onClose, onUpdated }: Props) {
     setQuestions(prev => [...prev, { id: genId(), label: "", type: "text", required: false }]);
   }
 
+  // Remove question
   function removeQuestion(id: string) {
     setQuestions(prev => prev.filter(q => q.id !== id));
   }
@@ -130,7 +111,7 @@ export default function EditFormModal({ form, onClose, onUpdated }: Props) {
       const payload = {
         title, description, eventDate,
         questions: questions.length > 0 ? questions : null,
-        socialLinks: Object.keys(socialLinks).some(k => (socialLinks as Record<string, string>)[k]) ? socialLinks : null,
+        socialLinks: null, // Hardcoded on the public page
       };
       const res = await fetch(`/api/yep-admin/forms/${form.id}`, {
         method: "PATCH",
@@ -185,8 +166,8 @@ export default function EditFormModal({ form, onClose, onUpdated }: Props) {
 
         {/* Tabs */}
         <div style={{ display: "flex", gap: "0.25rem", marginBottom: "1.5rem", background: "rgba(255,255,255,0.04)", borderRadius: "8px", padding: "0.25rem" }}>
-          {[["basic", "Basic Info"], ["questions", `Questions (${questions.length})`], ["social", "Social Links"]].map(([key, label]) => (
-            <button key={key} type="button" style={tabStyle(tab === key)} onClick={() => setTab(key as "basic" | "questions" | "social")}>
+          {[["basic", "Basic Info"], ["questions", `Questions (${questions.length})`]].map(([key, label]) => (
+            <button key={key} type="button" style={tabStyle(tab === key)} onClick={() => setTab(key as "basic" | "questions")}>
               {label}
             </button>
           ))}
@@ -273,29 +254,6 @@ export default function EditFormModal({ form, onClose, onUpdated }: Props) {
               }}>
                 + Add Question
               </button>
-            </div>
-          )}
-
-          {tab === "social" && (
-            <div>
-              <p style={sectionTitle}>Social Media Links</p>
-              <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.8rem", marginBottom: "1rem" }}>
-                Links shown on the public form to encourage attendees to follow your pages.
-              </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
-                {SOCIAL_FIELDS.map(f => (
-                  <div key={f.key}>
-                    <label style={labelStyle}>{f.label}</label>
-                    <input
-                      style={inputStyle}
-                      value={(socialLinks as Record<string, string>)[f.key] || ""}
-                      onChange={e => setSocialLinks(prev => ({ ...prev, [f.key]: e.target.value }))}
-                      placeholder={f.placeholder}
-                      type="url"
-                    />
-                  </div>
-                ))}
-              </div>
             </div>
           )}
 
